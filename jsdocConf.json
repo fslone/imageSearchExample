@@ -1,0 +1,21 @@
+{
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "source": {
+        "include": ["client"],
+        "includePattern": ".+\\.js(doc)?$",
+        "excludePattern": "docs"
+    },
+    "plugins": [],
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false
+    },
+    "opts": {
+        "encoding": "utf8",
+        "destination": "client/docs/js",
+        "recurse": true,
+        "private": true
+    }
+}
