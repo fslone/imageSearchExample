@@ -1,2 +1,58 @@
-#search_container #search_results {
-  display: none; }
+#search_container #logo {
+  margin: 120px -45px 15px 0; }
+
+#search_container #search_results #image_result {
+  margin-top: 30px; }
+
+#search_container .error-row {
+  color: red; }
+
+#search_container .btn-primary {
+  background-color: #0dd5b2;
+  background-position: 0px !important;
+  border: 1px solid #0dd5b2; }
+
+.spinner {
+  -webkit-animation: spin 1s infinite linear;
+  -moz-animation: spin 1s infinite linear;
+  -o-animation: spin 1s infinite linear;
+  -ms-animation: spin 1s infinite linear;
+  animation: spin 1s infinite linear;
+  -webkit-transform-origin: 50% 50%;
+  -moz-transform-origin: 50% 50%;
+  -o-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
+  /*display: none;*/
+  margin: 100px auto;
+  width: 75px;
+  height: 77px; }
+
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg); }
+  100% {
+    -webkit-transform: rotate(360deg); } }
+
+@-moz-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg); }
+  100% {
+    -moz-transform: rotate(360deg); } }
+
+@-o-keyframes spin {
+  0% {
+    -o-transform: rotate(0deg); }
+  100% {
+    -o-transform: rotate(360deg); } }
+
+@-ms-keyframes spin {
+  0% {
+    -ms-transform: rotate(0deg); }
+  100% {
+    -ms-transform: rotate(360deg); } }
+
+@-keyframes spin {
+  0% {
+    transform: rotate(0deg); }
+  100% {
+    transform: rotate(360deg); } }
