@@ -1,0 +1,52 @@
+<!doctype html>
+<html class="no-js" lang="en-us">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>YikYak Image Search</title>
+  <meta name="description" content="A sample search engine to fetch images based on a user's email address.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/styles.min.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+</head>
+
+<body>
+  <div class="container" id="search_container">
+    <form class="inner_container" id="queryForm">
+      <fieldset>
+        <div class="row">
+          <div class="col-xs-12 text-center">
+            <!-- need to scale this down -->
+            <img alt="Yik Yak Image Search" src="img/YikYak.jpg" width="200" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12">
+            <p>Enter an e-mail address below to search images</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 col-sm-8">
+            <div class="form-group">
+              <input type="text" name="query" id="query_box" class="form form-control" />
+            </div>
+          </div>
+          <div class="col-sm-2 col-xs-12 error-row">
+            <span></span>
+          </div>
+          <div class="col-sm-2 col-xs-12">
+            <button class="btn btn-primary pull-right">Search</button>
+          </div>
+        </div>
+        <div id="search_results">
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  
+  <script src="js/main.min.js"></script>
+
+</body>
+
+</html>
