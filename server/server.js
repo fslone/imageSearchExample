@@ -1,6 +1,5 @@
 (function() {
-  //https://www.npmjs.com/package/output-cache
-  //https://www.npmjs.com/package/google-images
+  
   var server,
       restify = require("restify"),
       fs = require("fs"),
