@@ -1,9 +1,12 @@
 (function() {
-  
+  //https://www.npmjs.com/package/output-cache
+  //https://www.npmjs.com/package/google-images
   var server,
       restify = require("restify"),
       fs = require("fs"),
-      request = require("request");
+      request = require("request"),
+      outputCache = require("output-cache"),
+      images = require("google-images");
       
   function _init() {
 
@@ -56,12 +59,16 @@
 
     _server.get("/restapi/GetImage", __getGoogleImage);
 
-    function __getGoogleImage() {
+    function __getGoogleImage(req, res, next) {
       var emailAddr;
 
       emailAddr = req.params.email;
 
-      console.log(emailAddr);
+      images.search(emailAddr, function (err, images) {
+        if(err) res.send(err);
+        else res.send(images);
+      });
+
     }
 
   }
