@@ -7,7 +7,10 @@ var searchEngine = (function() {
   //across multiple functions
   var $form,
       $queryBox,
-      $radius;
+      $radius,
+      $container,
+      $results,
+      $submitButton;
 
   /**
     * Initialize the search page
@@ -19,9 +22,12 @@ var searchEngine = (function() {
 
     //cache some refrences that will be used 
     //across multiple functions
-    $form = $("#queryForm");
+    $container = $("#search_container");
+    $form = $container.find("#queryForm");
     $queryBox = $form.find("#query_box");
+    $submitButton = $form.find(".btn-primary");
     $radius = $form.find("#radius");
+    $results = $container.find("#search_results");
     
     _bindUI();
 
@@ -43,9 +49,18 @@ var searchEngine = (function() {
     $form
       .find(".btn-primary")
       .click(function(e) {    
-        e.preventDefault();    
+
         query = $queryBox.val();
-        if(_validateForm(query)) _showSearchResults(query);
+        
+        if(_validateForm(query)) {
+          _fetchSearchResults(query);
+          _showLoader($results);  
+        
+          $submitButton.css({
+            "opacity":"0.5"
+          });
+        }
+
       });
 
     //bind the return key
@@ -53,9 +68,11 @@ var searchEngine = (function() {
       .on("keypress", function(e) {
         if(e.which===13) {
           query = $queryBox.val();
-          if(_validateForm(query)) _showSearchResults(query);
+          if(_validateForm(query)) _fetchSearchResults(query);
         }
       });
+
+    return true;
   
   }
 
@@ -83,11 +100,77 @@ var searchEngine = (function() {
     * @author Fleming Slone [fslone@gmail.com]
     * @memberof! searchEngine
    */
-   function _showSearchResults(query) {
-    $.when(_getImageResults(query)).then(function(response) {
-      console.log(response);
+  function _fetchSearchResults(query) {
+    
+    $.when(
+      _getImageResults(query)
+    ).then(function(res) {
+
+      _hideLoader($results);
+      
+      _animateLogo();
+      
+      _displayImage(res[0]);
+    
+      $submitButton.css({
+        "opacity":""
+      });
+
     });
-   }
+  
+  }
+
+  function _animateLogo() {
+    
+    $container
+      .find("#logo")
+      .animate({
+        "margin-top":"0px",
+        "margin-bottom":"0px",
+        "width": "50px",
+        "height": "0px"
+      }, 500);
+
+  }
+
+  /**
+    * Here I'm taking the image object and doing a few different things. 
+    * First I'm determining if the width is greater than 300px. If it isn't 
+    * I let it remain the width associated with object, otherwise I set it 
+    * to 300px and then determine the new height based on the ratio of the original  
+    * image size. 
+    *
+    * @param {object} imgObj The image details of the first image returned by the REST endpoint
+    * @see _getImageResults
+    * @author Fleming Slone [fslone@gmail.com]
+    * @memberof! searchEngine
+   */
+  function _displayImage(imgObj) {
+      
+    var width, 
+        height,
+        ratio;
+
+    width = parseInt(imgObj.width);
+    height = parseInt(imgObj.height);
+    ratio = width/height;
+
+    //set a more reasonable height/width
+    if(width > 300) {
+      width = 300;
+      height = width/ratio;
+    }
+
+    $("<img />", {
+      "id": "image_result",
+      "src": imgObj.unescapedUrl,
+      "width": width,
+      "height": height,
+      "height": imgObj.unescapedUrl,
+      "alt": "Image Search Result"
+    }).appendTo($("#search_results"));
+
+  }
 
   /**
     * Set formState object in localStorage to save last page visit
@@ -136,6 +219,8 @@ var searchEngine = (function() {
 
       if((curTime - unloadTime) < 3000) $queryBox.val(formState.query);
 
+    } else {
+      $queryBox.val("Search by e-mail address...")
     }
 
   }
@@ -182,7 +267,7 @@ var searchEngine = (function() {
     $errorSpan = $form.find(".error-row span");
 
     $queryBox
-      .closest(".form-group")
+      .closest(".input-group")
       .addClass("has-error");
 
     $errorSpan
@@ -227,7 +312,7 @@ var searchEngine = (function() {
 
     promise = $.Deferred();
     url = "/restapi/GetImage";
-    params = "?" + query;
+    params = "?email=" + query;
 
     $.ajax({
       cache: false,
@@ -235,8 +320,8 @@ var searchEngine = (function() {
       type: "GET",
       url: url + params,
       dataType: "text",
-      success: function(json) {
-        promise.resolve($.parseJSON(json));
+      success: function(res) {
+        promise.resolve($.parseJSON(res));
       }, 
       error: function() {
         var errorRow;
@@ -297,8 +382,48 @@ var searchEngine = (function() {
   
   }
 
+  /**
+   * Shows the loading spinner.
+   *
+   */
+  function _showLoader($container) {
+    
+    var htmlString;
+
+    htmlString = "<div class='spinner'><img src='img/yak.png' alt='Loading' /></div>"; 
+
+    $container
+      .empty()
+      .append(htmlString)
+      .find(".spinner")
+      .show();
+
+    setTimeout(function() {}, 500);
+
+  }
+
+  /**
+   * Hides the loading spinner.
+   *
+   */
+  function _hideLoader($container) {
+    
+    if ($container === null) $container = $("body");
+
+    $container
+      .css({
+        opacity: ""
+      })
+      .find(".spinner")
+      .remove();
+  }
+
   return {
-    init: _init
+    init: _init,
+    isEmail: _isEmail,
+    bindUI: _bindUI,
+    validateForm: _validateForm,
+    getImageResults: _getImageResults
   }
 
 }());
