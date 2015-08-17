@@ -35,7 +35,10 @@ var searchEngine = (function() {
   //across multiple functions
   var $form,
       $queryBox,
-      $radius;
+      $radius,
+      $container,
+      $results,
+      $submitButton;
 
   /**
     * Initialize the search page
@@ -47,9 +50,12 @@ var searchEngine = (function() {
 
     //cache some refrences that will be used 
     //across multiple functions
-    $form = $("#queryForm");
+    $container = $("#search_container");
+    $form = $container.find("#query_form");
     $queryBox = $form.find("#query_box");
+    $submitButton = $form.find(".btn-primary");
     $radius = $form.find("#radius");
+    $results = $container.find("#search_results");
     
     _bindUI();
 
@@ -68,27 +74,62 @@ var searchEngine = (function() {
     //bind the search button
     $form
       .find(".btn-primary")
-      .click(function(e) {    
-        var query;
-        e.preventDefault();    
-        query = $queryBox.val();
-        if(_validate(query)) _showSearchResults();
+      .click(function(event) {   
+        _handleSubmit(event);
       });
 
     //bind the return key
     $queryBox
-      .on("keypress", function(e) {
-        var query;
-        if(e.which===13) {
-          query = $queryBox.val();
-          if(_validate(query)) _showSearchResults();
-        }
+      .on("keypress", function(event) {
+        if(event.which===13) _handleSubmit(event);
       });
+
+    return true;
   
   }
 
   /**
-    * Re-populate the search box, etc. if the page is refreshed.
+    * Handle submission of the form
+    *
+    * @author Fleming Slone [fslone@gmail.com]
+    * @memberof! searchEngine
+   */
+  function _handleSubmit(event) {
+    
+    var query;
+
+    query = $queryBox.val();
+    
+    event.preventDefault();
+
+    $container
+      .find(".alert")
+      .remove();
+    
+    if(_validateForm(query)) {
+      
+      _showLoader($results);
+
+      $.when(
+        _getImageResults(query)
+      ).then(function(res) {
+        var json;
+        _hideLoader($results);
+        try {
+          var json = $.parseJSON(res);
+          _animateResults(query);
+          _displayImage(json);
+        } catch(err) {
+
+        }
+      });        
+    
+    }
+
+  }
+
+  /**
+    * Re-populate the search box with the last query if the page is refreshed.
     *
     * @author Fleming Slone [fslone@gmail.com]
     * @memberof! searchEngine
@@ -102,6 +143,83 @@ var searchEngine = (function() {
       .load(function() {
         _loadFromFormState();
       });
+
+  }
+
+  /**
+    * Animates the logo, query box, etc. after the form is submitted and results are returned
+    *
+    * @author Fleming Slone [fslone@gmail.com]
+    * @memberof! searchEngine
+   */
+  function _animateResults(query) {
+    
+    $container
+      .find("#logo")
+      .animate({
+        "margin-top":"0px",
+        "margin-bottom":"0px",
+        "width": "50px",
+        "height": "0px",
+        "opacity": "0"
+      }, {duration: 500});
+
+    $container
+      .find("#logo_row")
+      .animate({
+        "height": "0px",
+        "opacity": "0"
+      }, {duration: 500});
+
+    $container
+      .find("#query_box, .btn-primary")
+      .animate({
+        "height": "0px",
+        "opacity": "0"
+      }, {duration: 500});    
+
+    $("header span").text(query)
+    $("header").fadeIn();
+
+  }
+
+  /**
+    * Here I'm taking the image object and doing a few different things. 
+    * First I'm determining if the width is greater than 300px. If it isn't 
+    * I let it remain the width associated with object, otherwise I set it 
+    * to 300px and then determine the new height based on the ratio of the original  
+    * image size. 
+    *
+    * @param {object} imgObj The image details of the first image returned by the REST endpoint
+    * @see _getImageResults
+    * @author Fleming Slone [fslone@gmail.com]
+    * @memberof! searchEngine
+   */
+  function _displayImage(imgObj) {
+      
+    var width, 
+        height,
+        ratio;
+
+    width = parseInt(imgObj.width);
+    height = parseInt(imgObj.height);
+    ratio = width/height;
+
+    //set a more reasonable height/width
+    if(width > 300) {
+      width = 300;
+      height = width/ratio;
+    }
+
+    $("&lt;img />", {
+      "id": "image_result",
+      "src": imgObj.unescapedUrl,
+      "width": width,
+      "height": height,
+      "height": imgObj.unescapedUrl,
+      "alt": "Image Search Result",
+      // "style": "display:none"
+    }).appendTo($("#search_results"));
 
   }
 
@@ -165,32 +283,66 @@ var searchEngine = (function() {
    */
   function _validateForm(query) {
 
-    var $errorSpan;
-
-    $errorSpan = $form.find(".error-row span");
-
     if(!query) {
 
-      $queryBox
-        .closest(".form-group")
-        .addClass("has-error");
-      $errorSpan
-        .text("Please enter an e-mail address.");
+      _displayError("Please enter an e-mail address.");
+      return false;
 
+    } else if (!_isEmail(query)){
+
+      _displayError("Please enter a valid e-mail address.");
       return false;
 
     } else {
 
-      $queryBox
-        .closest(".form-group")
-        .removeClass("has-error");
-      $errorSpan
-        .text("");
-
+      _removeError();
       return true;
 
     }
 
+  }
+
+  /**
+    * Display an error with associated styling
+    *
+    * @author Fleming Slone [fslone@gmail.com]
+    * @param {string} message The error message to be displayed
+    * @memberof! searchEngine
+   */
+  function _displayError(message) {
+    
+    var $errorSpan;
+    
+    $errorSpan = $form.find(".error-row span");
+
+    $queryBox
+      .closest(".input-group")
+      .addClass("has-error");
+
+    $errorSpan
+      .text(message);
+
+  }
+
+  /**
+    * Removes the error and associated styling
+    *
+    * @author Fleming Slone [fslone@gmail.com]
+    * @memberof! searchEngine
+   */
+  function _removeError() {
+    
+    var $errorSpan;
+    
+    $errorSpan = $form.find(".error-row span");
+
+    $queryBox
+      .closest(".form-group")
+      .removeClass("has-error");
+      
+    $errorSpan
+      .text("");
+  
   }
 
   /**
@@ -201,26 +353,29 @@ var searchEngine = (function() {
     * @author Fleming Slone [fslone@gmail.com]
     * @memberof! searchEngine
    */
-  function _getWikiResults(query) {
+  function _getImageResults(query) {
     
     var promise, 
-        url;
+        url,
+        params;
 
     promise = $.Deferred();
     url = "/restapi/GetImage";
+    params = "?email=" + query;
 
     $.ajax({
       cache: false,
       crossDomain: true,
       type: "GET",
-      url: url + "?" + query,
+      url: url + params,
       dataType: "text",
-      success: function(json) {
-        promise.resolve($.parseJSON(json));
+      success: function(res) {
+        promise.resolve(res);
       }, 
       error: function() {
         var errorRow;
         errorRow = _buildError();
+        $results.append(errorRow)
         promise.resolve();
       }
     });
@@ -232,12 +387,11 @@ var searchEngine = (function() {
   /**
     * Build an error 
     *
-    * @param {string} errorCode The error code from the server.
     * @returns {string} A string of html to be appended to the page
     * @author Fleming Slone [fslone@gmail.com]
     * @memberof! searchEngine
    */
-  function _buildError(errorCode) {
+  function _buildError() {
     
     var errorOpen, 
         errorClose, 
@@ -248,13 +402,13 @@ var searchEngine = (function() {
         error; 
 
     errorOpen = "&lt;div class='row'>";
-    cell1Open = "&lt;div class='col-xs-12 alert alert-danger'>&lt;strong>";
+    cell1Open = "&lt;div class='col-xs-12 alert alert-danger' style='position:absolute;top:0;left:0;'>&lt;strong>";
     cell1Close = "&lt;/strong>&lt;/div>";
     errorClose = "&lt;/div>";
 
     error = errorOpen;
     error += cell1Open;
-    error += "We're sorry, but there was a problem. Error code: " + errorCode
+    error += "We're sorry, but there was a problem."
     error += cell1Close;
     error += errorClose;
 
@@ -262,8 +416,72 @@ var searchEngine = (function() {
 
   }
 
+  /**
+    * Validates an email based on a regular expression 
+    *
+    * @param {string} email A string to be evaluated to determine if it is a valid email address    * @returns {string} A string of html to be appended to the page
+    * @author Fleming Slone [fslone@gmail.com]
+    * @memberof! searchEngine
+    * @returns {bool} Boolean indicating whether or not the email address passed the test against the regular expression
+   */
+  function _isEmail(email) {
+
+    var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+    return re.test(email);
+  
+  }
+
+  /**
+   * Shows the loading spinner.
+   *
+   * @author Fleming Slone [fslone@gmail.com]
+   * @memberof! searchEngine
+   */
+  function _showLoader($container) {
+    
+    var htmlString;
+
+    htmlString = "&lt;div class='spinner'>&lt;img src='img/yak.png' alt='Loading' />&lt;/div>"; 
+
+    $results
+      .empty()
+      .append(htmlString)
+      .find(".spinner")
+      .show();
+
+    //disable the submit button and text input
+    $submitButton.attr("disabled", true);
+    $queryBox.attr("disabled", true);
+
+  }
+
+  /**
+   * Hides the loading spinner.
+   *
+   * @author Fleming Slone [fslone@gmail.com]
+   * @memberof! searchEngine
+   */
+  function _hideLoader($container) {
+    
+    if ($container === null) $container = $("body");
+
+    $results
+      .find(".spinner")
+      .remove();
+
+    //disable the submit button
+    $submitButton.attr("disabled", false);
+    $queryBox.attr("disabled", false);
+
+  }
+
   return {
-    init: _init
+    bindUI: _bindUI,
+    buildError: _buildError,
+    init: _init,
+    isEmail: _isEmail,
+    getImageResults: _getImageResults,
+    validateForm: _validateForm
   }
 
 }());
@@ -284,7 +502,7 @@ searchEngine.init();</code></pre>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Thu Aug 13 2015 11:32:43 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.2</a> on Mon Aug 17 2015 00:36:52 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

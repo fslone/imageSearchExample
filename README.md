@@ -1,8 +1,11 @@
-#Performance Profile:#
+Link:
+------------------
 
-[stark-hollows-3447.herokuapp.com/](stark-hollows-3447.herokuapp.com/)
+[https://stark-hollows-3447.herokuapp.com/](https://stark-hollows-3447.herokuapp.com/)
 
-##Typical Coding Style:##
+Project Notes:
+------------------
+
 The project is typical of a routine project for me in many ways. The project features:
 
 - HTML5/SCSS/JS
