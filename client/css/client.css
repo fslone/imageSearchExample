@@ -17,7 +17,7 @@ header {
     margin: 5px 0 0 5px; }
 
 #search_container #logo {
-  margin: 120px 40px 15px 0; }
+  margin: 120px 40px 40px 0; }
 
 #search_container #search_results #image_result {
   margin-top: 30px; }
@@ -40,10 +40,11 @@ header {
   -moz-transform-origin: 50% 50%;
   -o-transform-origin: 50% 50%;
   transform-origin: 50% 50%;
-  /*display: none;*/
   margin: 100px auto;
   width: 75px;
   height: 77px; }
+  .spinner img {
+    margin-right: 20px; }
 
 @-webkit-keyframes spin {
   0% {

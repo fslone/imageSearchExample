@@ -73,6 +73,10 @@ var searchEngine = (function() {
     query = $queryBox.val();
     
     event.preventDefault();
+
+    $container
+      .find(".alert")
+      .remove();
     
     if(_validateForm(query)) {
       
@@ -81,9 +85,15 @@ var searchEngine = (function() {
       $.when(
         _getImageResults(query)
       ).then(function(res) {
+        var json;
         _hideLoader($results);
-        _animateResults(query);
-        _displayImage(res);
+        try {
+          var json = $.parseJSON(res);
+          _animateResults(query);
+          _displayImage(json);
+        } catch(err) {
+
+        }
       });        
     
     }
@@ -232,8 +242,6 @@ var searchEngine = (function() {
 
       if((curTime - unloadTime) < 3000) $queryBox.val(formState.query);
 
-    } else {
-      $queryBox.val("Search by e-mail address...")
     }
 
   }
@@ -334,11 +342,12 @@ var searchEngine = (function() {
       url: url + params,
       dataType: "text",
       success: function(res) {
-        promise.resolve($.parseJSON(res));
+        promise.resolve(res);
       }, 
       error: function() {
         var errorRow;
         errorRow = _buildError();
+        $results.append(errorRow)
         promise.resolve();
       }
     });
@@ -350,12 +359,11 @@ var searchEngine = (function() {
   /**
     * Build an error 
     *
-    * @param {string} errorCode The error code from the server.
     * @returns {string} A string of html to be appended to the page
     * @author Fleming Slone [fslone@gmail.com]
     * @memberof! searchEngine
    */
-  function _buildError(errorCode) {
+  function _buildError() {
     
     var errorOpen, 
         errorClose, 
@@ -366,13 +374,13 @@ var searchEngine = (function() {
         error; 
 
     errorOpen = "<div class='row'>";
-    cell1Open = "<div class='col-xs-12 alert alert-danger'><strong>";
+    cell1Open = "<div class='col-xs-12 alert alert-danger' style='position:absolute;top:0;left:0;'><strong>";
     cell1Close = "</strong></div>";
     errorClose = "</div>";
 
     error = errorOpen;
     error += cell1Open;
-    error += "We're sorry, but there was a problem. Error code: " + errorCode
+    error += "We're sorry, but there was a problem."
     error += cell1Close;
     error += errorClose;
 
@@ -440,11 +448,12 @@ var searchEngine = (function() {
   }
 
   return {
+    bindUI: _bindUI,
+    buildError: _buildError,
     init: _init,
     isEmail: _isEmail,
-    bindUI: _bindUI,
-    validateForm: _validateForm,
-    getImageResults: _getImageResults
+    getImageResults: _getImageResults,
+    validateForm: _validateForm
   }
 
 }());

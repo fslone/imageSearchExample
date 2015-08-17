@@ -25,7 +25,7 @@ header {
   
   #logo {
     
-    margin:120px 40px 15px 0;
+    margin:120px 40px 40px 0;
   
   }
 
@@ -61,10 +61,13 @@ header {
   -moz-transform-origin: 50% 50%;
   -o-transform-origin: 50% 50%;
   transform-origin: 50% 50%;
-  /*display: none;*/
   margin: 100px auto;
   width: 75px;
   height: 77px;
+
+  img {
+    margin-right:20px;
+  }
 }
 
 @-webkit-keyframes spin {
