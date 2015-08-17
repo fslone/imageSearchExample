@@ -1,11 +1,21 @@
 (function() {
   
-  var server,
+  var _server,
       restify = require("restify"),
       fs = require("fs"),
       request = require("request"),
       outputCache = require("output-cache"),
-      images = require("google-images");
+      googleImages = require("google-images"),
+      OutputCache = require("output-cache"),
+  
+  outputCache = new OutputCache({ maxCacheSizePerRoute: 10, removeOldEntriesWhenFull: true}),
+  
+  cacheOptions = {
+      location: outputCache.cacheLocation.SERVER,
+      varyByParam: ["email"],
+      durationSeconds: 3600,
+      headersToCache: ["Content-Type", "content-length"]
+  };
       
   function _init() {
 
@@ -56,19 +66,36 @@
 
   function _registerRestCalls() {
 
-    _server.get("/restapi/GetImage", __getGoogleImage);
+    outputCache.get(_server, "/restapi/GetImage", cacheOptions, function (req, res, next) {
+      
+      var emailAddr, responseObj;
 
-    function __getGoogleImage(req, res, next) {
-      var emailAddr;
+      if (req.cachedResponse) {
+        
+        for (var prop in req.cachedResponse.headers) {
+          
+          if (req.cachedResponse.headers.hasOwnProperty(prop)) {
+            res.setHeader(prop, req.cachedResponse.headers[prop]);
+          }
 
-      emailAddr = req.params.email;
+        }
 
-      images.search(emailAddr, function (err, images) {
-        if(err) res.send(err);
-        else res.send(images);
-      });
+        res.send(req.cachedResponse.status, req.cachedResponse.responseBody);
+      
+      } else {
+        
+        googleImages.search(req.params.email, function (err, images) {
+          responseObj = {
+            "height": images[0].height,
+            "width": images[0].width,
+            "unescapedUrl": images[0].unescapedUrl
+          };
+          res.send(200, JSON.stringify(responseObj));
+        });
 
-    }
+      }
+
+    });
 
   }
 
