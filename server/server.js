@@ -85,12 +85,16 @@
       } else {
         
         googleImages.search(req.params.email, function (err, images) {
-          responseObj = {
-            "height": images[0].height,
-            "width": images[0].width,
-            "unescapedUrl": images[0].unescapedUrl
-          };
-          res.send(200, JSON.stringify(responseObj));
+          if(images[0]===undefined) responseObj = undefined;
+          else {
+            responseObj = {
+              "height": images[0].height,
+              "width": images[0].width,
+              "unescapedUrl": images[0].unescapedUrl
+            };
+            responseObj = JSON.stringify(responseObj);
+          }
+          res.send(200, responseObj);
         });
 
       }
