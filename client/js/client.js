@@ -83,7 +83,7 @@ var searchEngine = (function() {
       ).then(function(res) {
         _hideLoader($results);
         _animateResults(query);
-        _displayImage(res[0]);
+        _displayImage(res);
       });        
     
     }
@@ -398,6 +398,8 @@ var searchEngine = (function() {
   /**
    * Shows the loading spinner.
    *
+   * @author Fleming Slone [fslone@gmail.com]
+   * @memberof! searchEngine
    */
   function _showLoader($container) {
     
@@ -420,6 +422,8 @@ var searchEngine = (function() {
   /**
    * Hides the loading spinner.
    *
+   * @author Fleming Slone [fslone@gmail.com]
+   * @memberof! searchEngine
    */
   function _hideLoader($container) {
     
