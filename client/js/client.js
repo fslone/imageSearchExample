@@ -43,37 +43,45 @@ var searchEngine = (function() {
    */
   function _bindUI() {
 
-    var query;
-
     //bind the search button
     $form
       .find(".btn-primary")
-      .click(function(e) {    
-
-        query = $queryBox.val();
-        
-        if(_validateForm(query)) {
-          _fetchSearchResults(query);
-          _showLoader($results);  
-        
-          $submitButton.css({
-            "opacity":"0.5"
-          });
-        }
-
+      .click(function(event) {   
+        _handleSubmit(event);
       });
 
     //bind the return key
     $queryBox
-      .on("keypress", function(e) {
-        if(e.which===13) {
-          query = $queryBox.val();
-          if(_validateForm(query)) _fetchSearchResults(query);
-        }
+      .on("keypress", function(event) {
+        if(event.which===13) _handleSubmit(event);
       });
 
     return true;
   
+  }
+
+  function _handleSubmit(event) {
+    
+    var query;
+
+    query = $queryBox.val();
+    
+    event.preventDefault();
+    
+    if(_validateForm(query)) {
+      
+      _showLoader($results);
+
+      $.when(
+        _getImageResults(query)
+      ).then(function(res) {
+        _hideLoader($results);
+        _animateLogo();
+        // _displayImage(res[0]);
+      });        
+    
+    }
+
   }
 
   /**
@@ -92,32 +100,6 @@ var searchEngine = (function() {
         _loadFromFormState();
       });
 
-  }
-
-  /**
-    * Show the image search results
-    *
-    * @author Fleming Slone [fslone@gmail.com]
-    * @memberof! searchEngine
-   */
-  function _fetchSearchResults(query) {
-    
-    $.when(
-      _getImageResults(query)
-    ).then(function(res) {
-
-      _hideLoader($results);
-      
-      _animateLogo();
-      
-      _displayImage(res[0]);
-    
-      $submitButton.css({
-        "opacity":""
-      });
-
-    });
-  
   }
 
   function _animateLogo() {
@@ -392,13 +374,15 @@ var searchEngine = (function() {
 
     htmlString = "<div class='spinner'><img src='img/yak.png' alt='Loading' /></div>"; 
 
-    $container
+    $results
       .empty()
       .append(htmlString)
       .find(".spinner")
       .show();
 
-    setTimeout(function() {}, 500);
+    //disable the submit button and text input
+    $submitButton.attr("disabled", true);
+    $queryBox.attr("disabled", true);
 
   }
 
@@ -410,12 +394,19 @@ var searchEngine = (function() {
     
     if ($container === null) $container = $("body");
 
-    $container
-      .css({
-        opacity: ""
-      })
-      .find(".spinner")
-      .remove();
+    //this is a pretty stupid thing to do, 
+    //but the loading spinner doesn't look right 
+    //if it's instantly removed
+    setTimeout(function() {
+      $results
+        .find(".spinner")
+        .remove();
+    }, 500);
+
+    //disable the submit button
+    $submitButton.attr("disabled", false);
+    $queryBox.attr("disabled", false);
+
   }
 
   return {
