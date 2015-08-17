@@ -1,3 +1,26 @@
+header {
+  
+  background-color: #0dd5b2;
+  display: none;
+  height: 40px;
+  left: 0;
+  padding: 5px;
+  position: absolute;
+  top: 0;
+  width: 100%;
+
+  .results-text {
+    color: #fff;
+    float: right;
+    font-family: "AvenirLTStd-Book";
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin: 5px 0 0 5px;
+  }
+
+}
+
 #search_container {    
   
   #logo {
@@ -29,40 +52,44 @@
 }
 
 .spinner {
-    -webkit-animation: spin 1s infinite linear;
-    -moz-animation: spin 1s infinite linear;
-    -o-animation: spin 1s infinite linear;
-    -ms-animation: spin 1s infinite linear;
-    animation: spin 1s infinite linear;
-    -webkit-transform-origin: 50% 50%;
-    -moz-transform-origin: 50% 50%;
-    -o-transform-origin: 50% 50%;
-    transform-origin: 50% 50%;
-    /*display: none;*/
-    margin: 100px auto;
-    width: 75px;
-    height: 77px;
-  }
+  -webkit-animation: spin 1s infinite linear;
+  -moz-animation: spin 1s infinite linear;
+  -o-animation: spin 1s infinite linear;
+  -ms-animation: spin 1s infinite linear;
+  animation: spin 1s infinite linear;
+  -webkit-transform-origin: 50% 50%;
+  -moz-transform-origin: 50% 50%;
+  -o-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
+  /*display: none;*/
+  margin: 100px auto;
+  width: 75px;
+  height: 77px;
+}
 
 @-webkit-keyframes spin {
-0% { -webkit-transform: rotate(0deg);}
-100% { -webkit-transform: rotate(360deg);}
+  0% { -webkit-transform: rotate(0deg);}
+  100% { -webkit-transform: rotate(360deg);}
 }
+
 @-moz-keyframes spin {
-0% { -moz-transform: rotate(0deg);}
-100% { -moz-transform: rotate(360deg);}
+  0% { -moz-transform: rotate(0deg);}
+  100% { -moz-transform: rotate(360deg);}
 }
+
 @-o-keyframes spin {
-0% { -o-transform: rotate(0deg);}
-100% { -o-transform: rotate(360deg);}
+  0% { -o-transform: rotate(0deg);}
+  100% { -o-transform: rotate(360deg);}
 }
+
 @-ms-keyframes spin {
-0% { -ms-transform: rotate(0deg);}
-100% { -ms-transform: rotate(360deg);}
+  0% { -ms-transform: rotate(0deg);}
+  100% { -ms-transform: rotate(360deg);}
 }
+
 @-keyframes spin {
-0% { transform: rotate(0deg);}
-100% { transform: rotate(360deg);}
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
 } 
 
 

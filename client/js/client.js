@@ -23,7 +23,7 @@ var searchEngine = (function() {
     //cache some refrences that will be used 
     //across multiple functions
     $container = $("#search_container");
-    $form = $container.find("#queryForm");
+    $form = $container.find("#query_form");
     $queryBox = $form.find("#query_box");
     $submitButton = $form.find(".btn-primary");
     $radius = $form.find("#radius");
@@ -60,6 +60,12 @@ var searchEngine = (function() {
   
   }
 
+  /**
+    * Handle submission of the form
+    *
+    * @author Fleming Slone [fslone@gmail.com]
+    * @memberof! searchEngine
+   */
   function _handleSubmit(event) {
     
     var query;
@@ -76,8 +82,8 @@ var searchEngine = (function() {
         _getImageResults(query)
       ).then(function(res) {
         _hideLoader($results);
-        _animateLogo();
-        // _displayImage(res[0]);
+        _animateResults(query);
+        _displayImage(res[0]);
       });        
     
     }
@@ -85,7 +91,7 @@ var searchEngine = (function() {
   }
 
   /**
-    * Re-populate the search box, etc. if the page is refreshed.
+    * Re-populate the search box with the last query if the page is refreshed.
     *
     * @author Fleming Slone [fslone@gmail.com]
     * @memberof! searchEngine
@@ -102,7 +108,13 @@ var searchEngine = (function() {
 
   }
 
-  function _animateLogo() {
+  /**
+    * Animates the logo, query box, etc. after the form is submitted and results are returned
+    *
+    * @author Fleming Slone [fslone@gmail.com]
+    * @memberof! searchEngine
+   */
+  function _animateResults(query) {
     
     $container
       .find("#logo")
@@ -110,8 +122,26 @@ var searchEngine = (function() {
         "margin-top":"0px",
         "margin-bottom":"0px",
         "width": "50px",
-        "height": "0px"
-      }, 500);
+        "height": "0px",
+        "opacity": "0"
+      }, {duration: 500});
+
+    $container
+      .find("#logo_row")
+      .animate({
+        "height": "0px",
+        "opacity": "0"
+      }, {duration: 500});
+
+    $container
+      .find("#query_box, .btn-primary")
+      .animate({
+        "height": "0px",
+        "opacity": "0"
+      }, {duration: 500});    
+
+    $("header span").text(query)
+    $("header").fadeIn();
 
   }
 
@@ -149,7 +179,8 @@ var searchEngine = (function() {
       "width": width,
       "height": height,
       "height": imgObj.unescapedUrl,
-      "alt": "Image Search Result"
+      "alt": "Image Search Result",
+      // "style": "display:none"
     }).appendTo($("#search_results"));
 
   }
@@ -394,14 +425,9 @@ var searchEngine = (function() {
     
     if ($container === null) $container = $("body");
 
-    //this is a pretty stupid thing to do, 
-    //but the loading spinner doesn't look right 
-    //if it's instantly removed
-    setTimeout(function() {
-      $results
-        .find(".spinner")
-        .remove();
-    }, 500);
+    $results
+      .find(".spinner")
+      .remove();
 
     //disable the submit button
     $submitButton.attr("disabled", false);
