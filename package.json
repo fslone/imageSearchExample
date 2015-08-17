@@ -17,8 +17,9 @@
     "mocha": "^2.2.5"
   },
   "dependencies": {
-    "restify": "^3.0.3",
-    "request": "^2.58.0"
+    "output-cache": "^1.0.0",
+    "request": "^2.58.0",
+    "restify": "^3.0.3"
   },
   "scripts": {
     "start": "node server/server.js"
